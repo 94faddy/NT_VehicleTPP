@@ -2,44 +2,65 @@ class CfgPatches
 {
 	class VehicleTPP_Scripts
 	{
-		requiredAddons[]={};
-		units[]={};
-		weapons[]={};
+		units[] = {};
+		weapons[] = {};
+		requiredVersion = 0.1;
+		requiredAddons[] = 
+		{
+			"DZ_Data",
+			"DZ_Scripts"
+		};
 	};
 };
+
 class CfgMods
 {
 	class VehicleTPP
 	{
-		type="mod";
-		author="Nightro";
-		dir="NT_VehicleTPP";
-		name="VehicleTPP";
-		dependencies[]=
+		dir = "NT_VehicleTPP";
+		picture = "";
+		action = "";
+		hideName = 1;
+		hidePicture = 1;
+		name = "VehicleTPP";
+		credits = "Nightro";
+		author = "Nightro";
+		authorID = "0";
+		version = "1.0";
+		extra = 0;
+		type = "mod";
+		
+		dependencies[] = 
 		{
 			"Game",
 			"World",
 			"Mission"
 		};
+		
 		class defs
 		{
 			class gameScriptModule
 			{
-				files[]=
+				value = "";
+				files[] = 
 				{
 					"NT_VehicleTPP/Scripts/3_Game"
 				};
 			};
+			
 			class worldScriptModule
 			{
-				files[]=
+				value = "";
+				files[] = 
 				{
 					"NT_VehicleTPP/Scripts/4_World"
 				};
 			};
+			
 			class missionScriptModule
 			{
-				files[]=
+				value = "";
+				files[] = 
 				{
 					"NT_VehicleTPP/Scripts/5_Mission"
 				};

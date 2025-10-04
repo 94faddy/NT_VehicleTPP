@@ -1,77 +1,94 @@
 class Vehicle3PPConfig
 {
-	protected string DriverOnly;
-	protected ref array<string> Whitelist = {};
+	bool DriverOnly = true;
+	ref array<string> Whitelist = new array<string>;
 
 	[NonSerialized()]
-	protected const string ConfigPath = "$profile:NT-VehicleTPPConfig.json";
+	static const string ConfigDir = "$profile:NT-VehicleTPPConfig";
+	[NonSerialized()]
+	static const string ConfigPath = "$profile:NT-VehicleTPPConfig/VehicleConfig.json";
+
+	void Vehicle3PPConfig()
+	{
+		// Initialize array
+		Whitelist = new array<string>;
+	}
 
 	void Init()
 	{
-		if (GetGame().IsDedicatedServer())
+		if (GetGame().IsServer() || GetGame().IsDedicatedServer())
 		{
-			if (!FileExist(ConfigPath))
-				Default();
+			// Create directory if it doesn't exist
+			if (!FileExist(ConfigDir))
+			{
+				Print("[VehicleTPP] Creating config directory: " + ConfigDir);
+				MakeDirectory(ConfigDir);
+			}
 
-			JsonFileLoader<Vehicle3PPConfig>.JsonLoadFile(ConfigPath, this);
+			// Check if config exists
+			if (FileExist(ConfigPath))
+			{
+				// Load existing config
+				JsonFileLoader<Vehicle3PPConfig>.JsonLoadFile(ConfigPath, this);
+				Print("[VehicleTPP] Configuration loaded from: " + ConfigPath);
+			}
+			else
+			{
+				// Create default config
+				Print("[VehicleTPP] Config file not found, creating default...");
+				Default();
+			}
 		}
 	}
 
 	void Save()
 	{
-		JsonFileLoader<Vehicle3PPConfig>.JsonSaveFile(ConfigPath, this);
+		if (GetGame().IsServer() || GetGame().IsDedicatedServer())
+		{
+			// Ensure directory exists
+			if (!FileExist(ConfigDir))
+			{
+				MakeDirectory(ConfigDir);
+			}
+
+			JsonFileLoader<Vehicle3PPConfig>.JsonSaveFile(ConfigPath, this);
+			Print("[VehicleTPP] Configuration saved to: " + ConfigPath);
+		}
 	}
 
 	void Default()
 	{
 		Print("[VehicleTPP] Loading default configuration...");
 
-		DriverOnly = "true";
-		Whitelist = {
-			"OffroadHatchback",
-			"Hatchback_02",
-			"CivilianSedan",
-			"Sedan_02",
-			"Truck_01_Covered"
-		};
+		DriverOnly = true;
+		
+		Whitelist.Clear();
+		Whitelist.Insert("OffroadHatchback");
+		Whitelist.Insert("Hatchback_02");
+		Whitelist.Insert("CivilianSedan");
+		Whitelist.Insert("Sedan_02");
+		Whitelist.Insert("Truck_01_Covered");
 
 		Save();
 	}
 
 	array<string> GetWhitelist()
 	{
+		if (!Whitelist)
+			Whitelist = new array<string>;
+			
 		return Whitelist;
 	}
 
 	bool IsDriverOnly()
 	{
-		return DriverOnly != "false";
-	}
-
-	protected array<string> ReadFileLines(string path)
-	{
-		FileHandle file;
-		string line;
-
-		array<string> contents = {};
-		file = OpenFile(path, FileMode.READ);
-		while (FGets(file, line) > 0)
-		{
-			line.Trim();
-			if (line != string.Empty)
-			{
-				contents.Insert(line);
-				line = string.Empty;
-			}
-		}
-
-		CloseFile(file);
-		return contents;
+		return DriverOnly;
 	}
 }
 
-// global access config \o/
+// Global config instance
 static ref Vehicle3PPConfig g_Vehicle3PPConfig;
+
 static ref Vehicle3PPConfig GetVehicle3PPConfig()
 {
 	if (!g_Vehicle3PPConfig)
